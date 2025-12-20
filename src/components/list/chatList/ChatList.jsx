@@ -5,6 +5,7 @@ import { useUserStore } from "../../../lib/userStore";
 import { doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import { db } from "../../../lib/firebase";
 import { useChatStore } from "../../../lib/chatStore";
+import SearchUser from "./searchUser/SearchUser";
 
 const ChatList = () => {
   const [chats, setChats] = useState([]);
@@ -68,17 +69,26 @@ const ChatList = () => {
     c.user.username.toLowerCase().includes(input.toLowerCase())
   );
 
+  function searchUsers() {
+
+  }
+
   return (
     <div className="chatList">
+
       <div className="search">
-        <div className="searchBar">
+
+        {/* <div className="searchBar">
           <img src="./search.png" alt="" />
           <input
             type="text"
             placeholder="Search"
             onChange={(e) => setInput(e.target.value)}
           />
-        </div>
+        </div> */}
+
+        <SearchUser />
+
         <img
           src={addMode ? "./minus.png" : "./plus.png"}
           alt=""
@@ -86,6 +96,7 @@ const ChatList = () => {
           onClick={() => setAddMode((prev) => !prev)}
         />
       </div>
+
       {filteredChats.map((chat) => (
         <div
           className="item"
