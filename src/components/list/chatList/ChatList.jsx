@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import "./chatList.css";
-import AddUser from "./addUser/addUser";
 import { useUserStore } from "../../../lib/userStore";
 import { doc, getDoc, onSnapshot, updateDoc } from "firebase/firestore";
 import { db } from "../../../lib/firebase";
 import { useChatStore } from "../../../lib/chatStore";
 import SearchUser from "./searchUser/SearchUser";
+import CreateGroup from "./createGroup/CreateGroup";
 
 const ChatList = () => {
   const [chats, setChats] = useState([]);
@@ -125,7 +125,7 @@ const ChatList = () => {
         </div>
       ))}
 
-      {addMode && <AddUser />}
+      {addMode && <CreateGroup />}
     </div>
   );
 };
