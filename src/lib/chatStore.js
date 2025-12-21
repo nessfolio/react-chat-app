@@ -9,7 +9,18 @@ export const useChatStore = create((set) => ({
   changeChat: (chatId, user) => {
     const currentUser = useUserStore.getState().currentUser;
 
-    // CHECK IF CURRENT USER IS BLOCKED
+    // 1. HANDLE GROUP CHATS
+    // If user is null, it means we are opening a group chat
+    if (!user) {
+      return set({
+        chatId,
+        user: null,
+        isCurrentUserBlocked: false,
+        isReceiverBlocked: false,
+      });
+    }
+
+    // 2. CHECK IF CURRENT USER IS BLOCKED (for private chats)
     if (user.blocked.includes(currentUser.id)) {
       return set({
         chatId,
@@ -19,7 +30,7 @@ export const useChatStore = create((set) => ({
       });
     }
 
-    // CHECK IF RECEIVER IS BLOCKED
+    // 3. CHECK IF RECEIVER IS BLOCKED (for private chats)
     else if (currentUser.blocked.includes(user.id)) {
       return set({
         chatId,
@@ -27,7 +38,10 @@ export const useChatStore = create((set) => ({
         isCurrentUserBlocked: false,
         isReceiverBlocked: true,
       });
-    } else {
+    } 
+    
+    // 4. DEFAULT STATE FOR PRIVATE CHATS
+    else {
       return set({
         chatId,
         user,
