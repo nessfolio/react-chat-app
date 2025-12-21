@@ -29,9 +29,7 @@ const Chat = () => {
 
   const endRef = useRef(null);
 
-  // useEffect(() => {
-  //   endRef.current?.scrollIntoView({ behavior: "smooth" });
-  // }, [chat.messages]);
+  const { isGroup} = useChatStore();
 
   useEffect(() => {
     const unSub = onSnapshot(doc(db, "chats", chatId), (res) => {
@@ -109,15 +107,19 @@ const Chat = () => {
 
     setText("");
     }
-  };
+
+  }; 
 
   return (
     <div className="chat">
       <div className="top">
         <div className="user">
-          <img src={user?.avatar || "./avatar.png"} alt="" />
+          {isGroup ? <img src="group-avatar.png" /> : <img src={user?.avatar || "./avatar.png"} alt="" />}
           <div className="texts">
-            <span>{user?.username}</span>
+            <span>
+              
+              {isGroup ? 'Group' : user?.username}
+            </span>
             <p>Lorem ipsum dolor, sit amet.</p>
           </div>
         </div>

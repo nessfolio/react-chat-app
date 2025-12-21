@@ -10,7 +10,6 @@ import CreateGroup from "./createGroup/CreateGroup";
 const ChatList = () => {
   const [chats, setChats] = useState([]);
   const [addMode, setAddMode] = useState(false);
-  const [input, setInput] = useState("");
 
   const { currentUser } = useUserStore();
   const { chatId, changeChat } = useChatStore();
@@ -63,49 +62,35 @@ const ChatList = () => {
 
     const userChatsRef = doc(db, "userchats", currentUser.id);
 
+    // ChatList.jsx inside handleSelect function
     try {
       await updateDoc(userChatsRef, {
         chats: userChats,
       });
 
-      // Update the global chat store state
-      // If it's a group, we pass null as the user object
-      changeChat(chat.chatId, chat.isGroup ? null : chat.user);
+      // Now passing three arguments: ID, User, and isGroup status
+      changeChat(chat.chatId, chat.user, chat.isGroup); 
     } catch (err) {
       console.log("Error updating seen status:", err);
     }
   };
 
-  // Filter chats based on the search input (checks group names or usernames)
-  const filteredChats = chats.filter((c) => {
-    const nameToSearch = c.isGroup ? c.groupName : c.user?.username;
-    return nameToSearch?.toLowerCase().includes(input.toLowerCase());
-  });
-
   return (
     <div className="chatList">
       <div className="search">
-        <div className="searchBar">
-          <img src="./search.png" alt="" />
-          <input
-            type="text"
-            placeholder="Search"
-            onChange={(e) => setInput(e.target.value)}
-          />
-        </div>
-        
-        {/* Your existing SearchUser component for finding single users */}
+
         <SearchUser />
 
-        <img
-          src={addMode ? "./minus.png" : "./plus.png"}
-          alt=""
-          className="add"
-          onClick={() => setAddMode((prev) => !prev)}
-        />
+        <div className="add" onClick={() => setAddMode((prev) => !prev)}>
+          Create Group
+          <img
+            src={addMode ? "./minus.png" : "./plus.png"}
+            alt=""
+          />
+        </div>
       </div>
 
-      {filteredChats.map((chat) => (
+      {chats.map((chat) => (
         <div
           className="item"
           key={chat.chatId}

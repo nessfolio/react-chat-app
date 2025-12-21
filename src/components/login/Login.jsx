@@ -14,7 +14,7 @@ const Login = () => {
       </div>
       {
         chosen === 'SignIn' 
-        ? <SignIn />
+        ? <SignIn /> 
         : <SignUp />
       }
     </div>

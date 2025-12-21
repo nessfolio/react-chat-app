@@ -69,5 +69,10 @@
     align-items: center;
     gap: 20px;
     padding-top: 40px;
+
+    span {
+      cursor: pointer;
+      user-select: none;
+    }
   }
 }

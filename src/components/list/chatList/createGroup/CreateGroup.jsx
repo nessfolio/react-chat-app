@@ -40,7 +40,7 @@ const CreateGroup = () => {
         // Make sure to add the id to the user object
         setUser({ ...docData, id: docId });
       } else {
-        toast.error("User not found!");
+        toast.info("User not found!");
       }
     } catch (err) {
       console.log(err);
@@ -59,8 +59,8 @@ const CreateGroup = () => {
 
   // Finalize group creation
   const handleAdd = async () => {
-    if (!groupName) return toast.warn("Please enter a group name!");
-    if (members.length < 2) return toast.warn("Add at least one more member!");
+    if (!groupName) return toast.info("Please enter a group name!");
+    if (members.length < 2) return toast.info("Add at least one more member!");
 
     const batch = writeBatch(db);
     const chatRef = collection(db, "chats");
@@ -77,6 +77,7 @@ const CreateGroup = () => {
         isGroup: true,
         groupName: groupName,
         adminId: currentUser.id,
+        members: members.map(m => m.id), // ADD THIS LINE: store array of user IDs
         lastMessage: "",
       });
 
@@ -116,10 +117,10 @@ const CreateGroup = () => {
         onChange={(e) => setGroupName(e.target.value)} 
       />
       
-      <h3>Add members</h3>
+      <h2>Add members</h2>
       <div className="chooseMembers">
         <form onSubmit={handleSearch}>
-          <input type="text" placeholder="Search user by username" name="username" />
+          <input type="text" placeholder="Search user" name="username" />
           <button type="submit">Search</button>
         </form>
         {user && (
