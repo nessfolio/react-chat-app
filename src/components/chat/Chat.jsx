@@ -24,13 +24,17 @@ const Chat = () => {
   });
 
   const { currentUser } = useUserStore();
-  const { chatId, user, isCurrentUserBlocked, isReceiverBlocked } =
+  const { chatId, user, isCurrentUserBlocked, isReceiverBlocked, isGroup } =
     useChatStore();
 
   const endRef = useRef(null);
 
-  const { isGroup} = useChatStore();
+  // Scroll to the bottom whenever messages change
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chat?.messages]);
 
+  // Real-time listener for the current chat document
   useEffect(() => {
     const unSub = onSnapshot(doc(db, "chats", chatId), (res) => {
       setChat(res.data());
@@ -56,7 +60,7 @@ const Chat = () => {
   };
 
   const handleSend = async () => {
-    if (text === "") return;
+    if (text === "" && !img.file) return;
 
     let imgUrl = null;
 
@@ -65,6 +69,7 @@ const Chat = () => {
         imgUrl = await upload(img.file);
       }
 
+      // 1. Update the chat document with the new message
       await updateDoc(doc(db, "chats", chatId), {
         messages: arrayUnion({
           senderId: currentUser.id,
@@ -74,9 +79,13 @@ const Chat = () => {
         }),
       });
 
-      const userIDs = [currentUser.id, user.id];
+      // 2. Determine who needs their "userchats" updated
+      // If it's a group, we use the members list from the chat document
+      // If it's private, we use the sender and receiver IDs
+      const userIDs = isGroup ? chat.members : [currentUser.id, user.id];
 
-      userIDs.forEach(async (id) => {
+      // 3. Update "userchats" for every relevant user
+      const updatePromises = userIDs.map(async (id) => {
         const userChatsRef = doc(db, "userchats", id);
         const userChatsSnapshot = await getDoc(userChatsRef);
 
@@ -87,40 +96,42 @@ const Chat = () => {
             (c) => c.chatId === chatId
           );
 
-          userChatsData.chats[chatIndex].lastMessage = text;
-          userChatsData.chats[chatIndex].isSeen =
-            id === currentUser.id ? true : false;
-          userChatsData.chats[chatIndex].updatedAt = Date.now();
+          if (chatIndex !== -1) {
+            userChatsData.chats[chatIndex].lastMessage = text || "Sent an image";
+            userChatsData.chats[chatIndex].isSeen = id === currentUser.id;
+            userChatsData.chats[chatIndex].updatedAt = Date.now();
 
-          await updateDoc(userChatsRef, {
-            chats: userChatsData.chats,
-          });
+            await updateDoc(userChatsRef, {
+              chats: userChatsData.chats,
+            });
+          }
         }
       });
+
+      await Promise.all(updatePromises);
+
     } catch (err) {
-      console.log(err);
-    } finally{
-    setImg({
-      file: null,
-      url: "",
-    });
-
-    setText("");
+      console.error("Failed to send message:", err);
+    } finally {
+      setImg({ file: null, url: "" });
+      setText("");
     }
-
-  }; 
+  };
 
   return (
     <div className="chat">
       <div className="top">
         <div className="user">
-          {isGroup ? <img src="group-avatar.png" /> : <img src={user?.avatar || "./avatar.png"} alt="" />}
+          <img 
+            src={isGroup ? "./group-avatar.png" : user?.avatar || "./avatar.png"} 
+            alt="avatar" 
+          />
           <div className="texts">
             <span>
-              
-              {isGroup ? 'Group' : user?.username}
+              {/* Show group name from database or username */}
+              {isGroup ? chat?.groupName : user?.username}
             </span>
-            <p>Lorem ipsum dolor, sit amet.</p>
+            <p>{isGroup ? "Group members are active" : "Personal chat"}</p>
           </div>
         </div>
         <div className="icons">
@@ -129,6 +140,7 @@ const Chat = () => {
           <img src="./info.png" alt="" />
         </div>
       </div>
+
       <div className="center">
         {chat?.messages?.map((message, index) => (
           <div
@@ -140,7 +152,8 @@ const Chat = () => {
             <div className="texts">
               {message.img && <img src={message.img} alt="" />}
               <p>{message.text}</p>
-              <span>{format(message.createdAt.toDate())}</span>
+              {/* Use safe navigation for toDate() */}
+              <span>{message.createdAt && format(message.createdAt.toDate())}</span>
             </div>
           </div>
         ))}
@@ -153,6 +166,7 @@ const Chat = () => {
         )}
         <div ref={endRef}></div>
       </div>
+
       <div className="bottom">
         <div className="icons">
           <label htmlFor="file">
@@ -170,13 +184,13 @@ const Chat = () => {
         <input
           type="text"
           placeholder={
-            isCurrentUserBlocked || isReceiverBlocked
+            (isCurrentUserBlocked || isReceiverBlocked) && !isGroup
               ? "You cannot send a message"
               : "Type a message..."
           }
           value={text}
           onChange={(e) => setText(e.target.value)}
-          disabled={isCurrentUserBlocked || isReceiverBlocked}
+          disabled={(isCurrentUserBlocked || isReceiverBlocked) && !isGroup}
         />
         <div className="emoji">
           <img
@@ -191,7 +205,7 @@ const Chat = () => {
         <button
           className="sendButton"
           onClick={handleSend}
-          disabled={isCurrentUserBlocked || isReceiverBlocked}
+          disabled={(isCurrentUserBlocked || isReceiverBlocked) && !isGroup}
         >
           Send
         </button>

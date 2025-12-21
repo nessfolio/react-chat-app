@@ -107,7 +107,7 @@ const SearchUser = () => {
           }),
         });
 
-        toast.success("Chat started!");
+        
       } else {
         // --- JOIN GROUP LOGIC ---
         // Check if user is already a member
