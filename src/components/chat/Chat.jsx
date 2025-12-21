@@ -135,9 +135,7 @@ const Chat = () => {
           </div>
         </div>
         <div className="icons">
-          <img src="./phone.png" alt="" />
-          <img src="./video.png" alt="" />
-          <img src="./info.png" alt="" />
+          <img src="./more.png" alt="" />
         </div>
       </div>
 
@@ -178,8 +176,6 @@ const Chat = () => {
             style={{ display: "none" }}
             onChange={handleImg}
           />
-          <img src="./camera.png" alt="" />
-          <img src="./mic.png" alt="" />
         </div>
         <input
           type="text"

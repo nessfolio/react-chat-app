@@ -1,9 +1,16 @@
 import "./userInfo.css"
 import { useUserStore } from "../../../lib/userStore";
+import { auth } from "../../../lib/firebase";
+import { useChatStore } from "../../../lib/chatStore";
 
 const Userinfo = () => {
-
   const { currentUser } = useUserStore();
+  const { resetChat } = useChatStore();
+
+  const handleSignOut = () => {
+    auth.signOut();
+    resetChat()
+  }
 
   return (
     <div className='userInfo'>
@@ -11,11 +18,7 @@ const Userinfo = () => {
         <img src={currentUser.avatar || "./avatar.png"} alt="" />
         <h2>{currentUser.username}</h2>
       </div>
-      <div className="icons">
-        <img src="./more.png" alt="" />
-        <img src="./video.png" alt="" />
-        <img src="./edit.png" alt="" />
-      </div>
+      <button className="signout" onClick={handleSignOut}>Sign out</button>
     </div>
   )
 }
