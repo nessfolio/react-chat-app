@@ -59,6 +59,12 @@ const Chat = () => {
     }
   };
 
+  const handleKeyDown = (e) => {
+  if (e.key === "Enter") {
+    handleSend();
+  }
+  };
+
   const handleSend = async () => {
     if (text === "" && !img.file) return;
 
@@ -185,6 +191,7 @@ const Chat = () => {
               : "Type a message..."
           }
           value={text}
+          onKeyDown={handleKeyDown}
           onChange={(e) => setText(e.target.value)}
           disabled={(isCurrentUserBlocked || isReceiverBlocked) && !isGroup}
         />
