@@ -26,7 +26,7 @@ https://chat-project-a1204.web.app/
 
 ## Usage
 
-I recommend two accounts to test the features, including one-on-one conversations and group functionality.
+I recommend creating two accounts to test the features, including one-on-one conversations and group functionality.
 
 ---
 
