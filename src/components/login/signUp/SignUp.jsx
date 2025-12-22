@@ -24,51 +24,64 @@ const SignUp = () => {
 
   const [loading, setLoading] = useState(false);
     
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    const formData = new FormData(e.target);
+const handleRegister = async (e) => {
+  e.preventDefault();
+  setLoading(true);
 
+  try {
+    const formData = new FormData(e.target);
     const { username, email, password } = Object.fromEntries(formData);
 
-    // VALIDATE INPUTS
-    if (!username || !email || !password)
-      return toast.warn("Please enter inputs!");
-    if (!avatar.file) return toast.warn("Please upload an avatar!");
+    // 1. VALIDATE FORM INPUTS
+    if (!username || !email || !password) {
+      toast.info("Please enter all fields!");
+      return; // The 'finally' block will still run after this return
+    }
 
-    // VALIDATE UNIQUE USERNAME
+    if (!avatar.file) {
+      toast.info("Please upload an avatar!");
+      return;
+    }
+
+    // 2. CHECK IF USERNAME IS UNIQUE
     const usersRef = collection(db, "users");
     const q = query(usersRef, where("username", "==", username));
     const querySnapshot = await getDocs(q);
+
     if (!querySnapshot.empty) {
-      return toast.warn("Select another username");
+      toast.info("Username is already taken. Select another username");
+      return;
     }
 
-    try {
-      const res = await createUserWithEmailAndPassword(auth, email, password);
+    // 3. CREATE USER IN FIREBASE AUTH
+    const res = await createUserWithEmailAndPassword(auth, email, password);
 
-      const imgUrl = await upload(avatar.file);
+    // 4. UPLOAD AVATAR TO STORAGE
+    const imgUrl = await upload(avatar.file);
 
-      await setDoc(doc(db, "users", res.user.uid), {
-        username,
-        email,
-        avatar: imgUrl,
-        id: res.user.uid,
-        blocked: [],
-      });
+    // 5. CREATE USER DOCUMENT IN FIRESTORE
+    await setDoc(doc(db, "users", res.user.uid), {
+      username,
+      email,
+      avatar: imgUrl,
+      id: res.user.uid,
+      blocked: [],
+    });
 
-      await setDoc(doc(db, "userchats", res.user.uid), {
-        chats: [],
-      });
+    // 6. INITIALIZE USER CHATS DOCUMENT
+    await setDoc(doc(db, "userchats", res.user.uid), {
+      chats: [],
+    });
 
-      toast.success("Account created! You can login now!");
-    } catch (err) {
-      console.log(err);
-      toast.error(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+    toast.success("Account created! You can login now!");
+  } catch (err) {
+    console.error(err);
+    toast.error(err.message);
+  } finally {
+    // This runs regardless of success, failure, or early returns
+    setLoading(false);
+  }
+};
   return (
     <div className="item">
         <h2>Create an Account</h2>

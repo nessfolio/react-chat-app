@@ -87,6 +87,7 @@ const SearchUser = () => {
           createdAt: serverTimestamp(),
           messages: [],
           isGroup: false,
+          members: [currentUser.id, result.id],
         });
 
         await updateDoc(doc(userChatsRef, result.id), {
@@ -137,7 +138,6 @@ const SearchUser = () => {
         });
 
         await batch.commit();
-        toast.success("Joined group!");
       }
 
       setText("");

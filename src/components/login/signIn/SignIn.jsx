@@ -20,6 +20,7 @@ const SignIn = () => {
     
         try {
           await signInWithEmailAndPassword(auth, email, password);
+          window.location.reload();
         } catch (err) {
           console.log(err);
           toast.error(err.message);
