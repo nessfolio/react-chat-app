@@ -69,3 +69,8 @@ Configure your Firebase and add your keys to src/lib/firebase.js
 ```bash
 npm run dev
 ```
+
+---
+
+## 📸 Screenshot
+![screenshot](chat-screenshot.png)
