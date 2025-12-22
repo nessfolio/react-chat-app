@@ -28,6 +28,8 @@ https://chat-project-a1204.web.app/
 
 I recommend creating two accounts to test the features, including one-on-one conversations and group functionality.
 
+Warn: My app doesn’t really go well on small screens, as I focused on server-side Firebase and functionality.
+
 ---
 
 ## 🛠 Technologies Used
