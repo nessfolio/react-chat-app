@@ -73,4 +73,4 @@ npm run dev
 ---
 
 ## 📸 Screenshot
-![screenshot](chat-screenshot.png)
+![screenshot](public/chat-screenshot.png)
